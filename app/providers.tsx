@@ -10,8 +10,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
         defaultOptions: {
           queries: {
             staleTime: 0,
+            gcTime: 0, // No mantener datos en caché después de unmount
             refetchOnWindowFocus: false,
             refetchOnMount: true,
+            retry: 1,
           },
         },
       })

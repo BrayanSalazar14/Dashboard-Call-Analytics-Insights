@@ -32,24 +32,30 @@ async function refreshMetrics(): Promise<MetricsResponse> {
 export default function Home() {
   const [isManualRefresh, setIsManualRefresh] = useState(false);
 
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ["metrics"],
     queryFn: fetchMetrics,
     refetchInterval: 5 * 60 * 1000, // Auto-refresh every 5 minutes
     refetchOnMount: true,
-    staleTime: 0, // Datos siempre considerados como "stale" para forzar refetch
+    staleTime: 0,
+    gcTime: 0, // No mantener datos en caché
   });
 
   async function handleRefresh() {
     setIsManualRefresh(true);
     try {
       console.log("🔄 Manual refresh triggered");
+
+      // Call refresh endpoint to clear server cache
       const refreshResponse = await refreshMetrics();
       console.log("✅ Refresh response:", refreshResponse);
 
-      // Force refetch from server
-      await refetch();
-      console.log("✅ Data refetched");
+      // Wait a bit to ensure server processed
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Force refetch from server (bypassing all cache)
+      const result = await refetch();
+      console.log("✅ Data refetched:", result.data?.lastUpdate);
     } catch (error) {
       console.error("❌ Refresh failed:", error);
     } finally {
@@ -102,7 +108,7 @@ export default function Home() {
       <div className="w-full px-4 py-3">
         <DashboardHeader
           onRefresh={handleRefresh}
-          isRefreshing={isManualRefresh}
+          isRefreshing={isManualRefresh || isRefetching}
           lastUpdate={data?.lastUpdate}
           isCached={data?.cached}
         />
