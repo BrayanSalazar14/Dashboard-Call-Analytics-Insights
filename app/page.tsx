@@ -36,13 +36,22 @@ export default function Home() {
     queryKey: ["metrics"],
     queryFn: fetchMetrics,
     refetchInterval: 5 * 60 * 1000, // Auto-refresh every 5 minutes
+    refetchOnMount: true,
+    staleTime: 0, // Datos siempre considerados como "stale" para forzar refetch
   });
 
   async function handleRefresh() {
     setIsManualRefresh(true);
     try {
-      await refreshMetrics();
+      console.log("🔄 Manual refresh triggered");
+      const refreshResponse = await refreshMetrics();
+      console.log("✅ Refresh response:", refreshResponse);
+
+      // Force refetch from server
       await refetch();
+      console.log("✅ Data refetched");
+    } catch (error) {
+      console.error("❌ Refresh failed:", error);
     } finally {
       setIsManualRefresh(false);
     }

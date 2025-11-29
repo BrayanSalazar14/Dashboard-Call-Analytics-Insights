@@ -1,21 +1,18 @@
 import { NextResponse } from 'next/server'
 import { getAllCalls, processCallData } from '@/lib/supabase'
-
-// Cache configuration
-let cachedData: any = null
-let lastFetch: number | null = null
-const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+import { isCacheValid, getCachedData, updateCache } from '@/lib/cache'
 
 export async function GET() {
   try {
-    const now = Date.now()
+    const { cachedData, lastFetch } = getCachedData()
 
     // Return cached data if valid
-    if (cachedData && lastFetch && (now - lastFetch) < CACHE_DURATION) {
+    if (isCacheValid()) {
+      console.log('📦 Returning cached data')
       return NextResponse.json({
         data: cachedData,
         cached: true,
-        lastUpdate: new Date(lastFetch).toISOString(),
+        lastUpdate: new Date(lastFetch!).toISOString(),
       })
     }
 
@@ -34,13 +31,13 @@ export async function GET() {
         by_disconnection_reason: {},
       }
 
-      cachedData = emptyMetrics
-      lastFetch = now
+      updateCache(emptyMetrics)
+      const { lastFetch } = getCachedData()
 
       return NextResponse.json({
         data: emptyMetrics,
         cached: false,
-        lastUpdate: new Date(lastFetch).toISOString(),
+        lastUpdate: new Date(lastFetch!).toISOString(),
         warning: 'No calls found in database',
       })
     }
@@ -49,17 +46,18 @@ export async function GET() {
     const metrics = processCallData(calls)
 
     // Update cache
-    cachedData = metrics
-    lastFetch = now
+    updateCache(metrics)
+    const { lastFetch: newLastFetch } = getCachedData()
 
     return NextResponse.json({
       data: metrics,
       cached: false,
-      lastUpdate: new Date(lastFetch).toISOString(),
+      lastUpdate: new Date(newLastFetch!).toISOString(),
     })
   } catch (error) {
     console.error('❌ Error fetching metrics:', error)
 
+    const { cachedData, lastFetch } = getCachedData()
     // Return cached data if available
     if (cachedData && lastFetch) {
       return NextResponse.json({
