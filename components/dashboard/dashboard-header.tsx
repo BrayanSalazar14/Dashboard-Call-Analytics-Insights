@@ -23,7 +23,7 @@ export function DashboardHeader({
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8"
+      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 w-full"
     >
       <div className="flex items-center gap-3">
         <div className="p-2 bg-primary/10 rounded-lg">

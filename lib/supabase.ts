@@ -85,18 +85,15 @@ export function processCallData(calls: RetellCall[]): CallMetrics {
   }
 
   calls.forEach((call) => {
-    // Count inbound vs outbound
     if (call.direction === 'inbound') {
       metrics.inbound++
     } else if (call.direction === 'outbound') {
       metrics.outbound++
     }
 
-    // Count by status
     const status = call.call_status || 'sin_status'
     metrics.by_status[status] = (metrics.by_status[status] || 0) + 1
 
-    // Count by disconnection reason
     const reason = call.disconnection_reason || 'sin_razon'
     metrics.by_disconnection_reason[reason] = (metrics.by_disconnection_reason[reason] || 0) + 1
   })
