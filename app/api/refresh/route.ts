@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { getAllCalls, processCallData } from '@/lib/supabase'
 import { clearCache, updateCache, getCachedData } from '@/lib/cache'

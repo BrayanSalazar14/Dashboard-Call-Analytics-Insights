@@ -2,7 +2,7 @@ import { CallMetrics } from './supabase'
 
 export let cachedData: CallMetrics | null = null
 export let lastFetch: number | null = null
-export const CACHE_DURATION = 5 * 60 * 1000
+export const CACHE_DURATION = 4 * 60 * 1000
 
 export function updateCache(data: CallMetrics) {
   cachedData = data

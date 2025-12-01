@@ -18,13 +18,16 @@ interface MetricsResponse {
 }
 
 async function fetchMetrics(): Promise<MetricsResponse> {
-  const res = await fetch("/api/metrics");
+  const res = await fetch("/api/metrics", { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to fetch metrics");
   return res.json();
 }
 
 async function refreshMetrics(): Promise<MetricsResponse> {
-  const res = await fetch("/api/refresh", { method: "POST" });
+  const res = await fetch("/api/refresh", {
+    method: "POST",
+    cache: "no-store",
+  });
   if (!res.ok) throw new Error("Failed to refresh metrics");
   return res.json();
 }
@@ -35,7 +38,7 @@ export default function Home() {
   const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ["metrics"],
     queryFn: fetchMetrics,
-    refetchInterval: 5 * 60 * 1000, // Auto-refresh every 5 minutes
+    refetchInterval: 6 * 60 * 1000, // Auto-refresh every 6 minutes
     refetchOnMount: true,
     staleTime: 0,
     gcTime: 0, // No mantener datos en caché
