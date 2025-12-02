@@ -153,13 +153,15 @@ export default function Home() {
         </div>
 
         {/* Charts Grid */}
-        <div className="grid gap-3 lg:grid-cols-3 mb-4">
+        <div className="grid gap-3 lg:grid-cols-2 mb-4">
           <DirectionChart
             inbound={metrics.inbound}
             outbound={metrics.outbound}
           />
           <StatusChart data={metrics.by_status} />
-          <DisconnectionChart data={metrics.by_disconnection_reason} />
+          <div className="lg:col-span-2">
+            <DisconnectionChart data={metrics.by_disconnection_reason} />
+          </div>
         </div>
       </div>
     </div>
