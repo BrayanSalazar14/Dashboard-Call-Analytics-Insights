@@ -9,6 +9,8 @@ import { StatusChart } from "@/components/dashboard/status-chart";
 import { DisconnectionChart } from "@/components/dashboard/disconnection-chart";
 import { Phone, PhoneIncoming, PhoneOutgoing } from "lucide-react";
 import { CallMetrics } from "@/lib/supabase";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface MetricsResponse {
   data: CallMetrics;
@@ -100,6 +102,13 @@ export default function ClientPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="w-full px-4 py-3">
+        <div className="flex justify-end mb-2">
+          <Link href="/">
+            <Button variant="ghost" className="gap-2">
+              ← Back
+            </Button>
+          </Link>
+        </div>
         <DashboardHeader
           onRefresh={handleRefresh}
           isRefreshing={isManualRefresh || isRefetching}
