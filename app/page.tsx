@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { ArrowRight, Phone, BarChart3 } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
@@ -24,7 +30,8 @@ export default function Home() {
                 <div>
                   <CardTitle>Call Analytics & Insights</CardTitle>
                   <CardDescription>
-                    Calls metrics and visualizations (inbound/outbound, status, and disconnections).
+                    Calls metrics and visualizations (inbound/outbound, status,
+                    and disconnections).
                   </CardDescription>
                 </div>
               </div>
@@ -57,6 +64,30 @@ export default function Home() {
               <Link href="/atc-conversions">
                 <Button className="gap-2" variant="secondary">
                   View conversions
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <BarChart3 className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <CardTitle>SMS Messaging Costs</CardTitle>
+                  <CardDescription>
+                    SMS messaging costs by date.
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Link href="/sms-messaging-costs">
+                <Button className="gap-2" variant="secondary">
+                  View costs
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>

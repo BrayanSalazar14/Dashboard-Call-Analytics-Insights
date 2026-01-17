@@ -2,15 +2,13 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { CallAnalyticsHeader } from "@/components/dashboard/call-analytics-header";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { DirectionChart } from "@/components/dashboard/direction-chart";
 import { StatusChart } from "@/components/dashboard/status-chart";
 import { DisconnectionChart } from "@/components/dashboard/disconnection-chart";
 import { Phone, PhoneIncoming, PhoneOutgoing } from "lucide-react";
 import { CallMetrics } from "@/lib/supabase";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 
 interface MetricsResponse {
   data: CallMetrics;
@@ -63,6 +61,12 @@ export default function ClientPage() {
     return (
       <div className="min-h-screen bg-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="w-full px-4 py-3">
+          <CallAnalyticsHeader
+            onRefresh={handleRefresh}
+            isRefreshing={false}
+            lastUpdate={undefined}
+            isCached={false}
+          />
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
@@ -78,6 +82,12 @@ export default function ClientPage() {
     return (
       <div className="min-h-screen bg-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="w-full px-4 py-3">
+          <CallAnalyticsHeader
+            onRefresh={handleRefresh}
+            isRefreshing={false}
+            lastUpdate={undefined}
+            isCached={false}
+          />
           <div className="flex items-center justify-center min-h-[60vh]">
             <div className="text-center">
               <div className="p-4 bg-destructive/10 rounded-lg max-w-md">
@@ -102,14 +112,7 @@ export default function ClientPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="w-full px-4 py-3">
-        <div className="flex justify-end mb-2">
-          <Link href="/">
-            <Button variant="ghost" className="gap-2">
-              ← Back
-            </Button>
-          </Link>
-        </div>
-        <DashboardHeader
+        <CallAnalyticsHeader
           onRefresh={handleRefresh}
           isRefreshing={isManualRefresh || isRefetching}
           lastUpdate={data?.lastUpdate}
