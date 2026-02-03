@@ -1,8 +1,8 @@
 import { NextResponse, NextRequest } from 'next/server'
 
 const GHL_BASE_URL = "https://services.leadconnectorhq.com";
-const LOCATION_ID = "iC88OQ63i0nUqb3v0Q1F";
-const AUTH_TOKEN = "Bearer pit-da3c98bf-b8d1-4686-82cf-ad88a2c7079f";
+const LOCATION_ID = process.env.NEXT_PUBLIC_LOCATION_ID_GHL || "";
+const AUTH_TOKEN = process.env.NEXT_PUBLIC_API_KEY_GHL || "";
 
 export async function POST(request: NextRequest) {
   const { cursor, limit = 100 } = await request.json();
