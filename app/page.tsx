@@ -79,7 +79,7 @@ export default function Home() {
                 <div>
                   <CardTitle>SMS Messaging Costs</CardTitle>
                   <CardDescription>
-                    SMS messaging costs by date.
+                    View SMS messages, status and total costs.
                   </CardDescription>
                 </div>
               </div>
