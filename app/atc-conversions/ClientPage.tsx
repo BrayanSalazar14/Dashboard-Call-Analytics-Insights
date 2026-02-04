@@ -9,21 +9,50 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BarChart3 } from "lucide-react";
+import { ArrowLeft, BarChart3, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { TagChart } from "@/components/dashboard/tag-chart";
 import { useQuery } from "@tanstack/react-query";
+
+type DashboardType = "lending-tower" | "reactivation-pitched-ds" | "reactivation-leads";
+
+const DASHBOARD_OPTIONS: {
+  value: DashboardType;
+  label: string;
+  colors: string[];
+}[] = [
+  {
+    value: "lending-tower",
+    label: "Lending Tower",
+    colors: ["#3b82f6", "#60a5fa", "#93c5fd", "#bfdbfe", "#dbeafe"], // Blue
+  },
+  {
+    value: "reactivation-leads",
+    label: "Reactivation Leads",
+    colors: ["#22c55e", "#4ade80", "#86efac", "#bbf7d0", "#dcfce7"], // Green
+  },
+  {
+    value: "reactivation-pitched-ds",
+    label: "Reactivation Lead - Pitched DS",
+    colors: ["#f97316", "#fb923c", "#fdba74", "#fed7aa", "#ffedd5"], // Orange
+  },
+];
 
 type AtcResponse = {
   counts: Record<string, number>;
   totalFetched: number;
   totalReported: number;
   tags: string[];
+  dashboardType: DashboardType;
 };
 
-async function fetchAtcConversions(): Promise<AtcResponse> {
+async function fetchAtcConversions(dashboardType: DashboardType): Promise<AtcResponse> {
   const res = await fetch("/api/atc-conversions", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ dashboardType }),
     cache: "no-store",
   });
   if (!res.ok) {
@@ -34,10 +63,12 @@ async function fetchAtcConversions(): Promise<AtcResponse> {
 }
 
 export default function ClientPage() {
+  const [dashboardType, setDashboardType] = useState<DashboardType>("lending-tower");
+
   const { data, isLoading, error, refetch, isRefetching, dataUpdatedAt } =
     useQuery({
-      queryKey: ["atc-conversions"],
-      queryFn: fetchAtcConversions,
+      queryKey: ["atc-conversions", dashboardType],
+      queryFn: () => fetchAtcConversions(dashboardType),
       refetchInterval: 6 * 60 * 1000,
       refetchOnMount: true,
       staleTime: 0,
@@ -47,6 +78,12 @@ export default function ClientPage() {
   const lastUpdated = dataUpdatedAt
     ? new Date(dataUpdatedAt).toLocaleString()
     : undefined;
+
+  const currentDashboard = DASHBOARD_OPTIONS.find(
+    (opt) => opt.value === dashboardType
+  );
+  const currentDashboardLabel = currentDashboard?.label;
+  const currentDashboardColors = currentDashboard?.colors;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -69,6 +106,21 @@ export default function ClientPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <div className="relative">
+              <select
+                value={dashboardType}
+                onChange={(e) => setDashboardType(e.target.value as DashboardType)}
+                disabled={isLoading || isRefetching}
+                className="appearance-none bg-background border border-input rounded-md px-3 py-2 pr-8 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {DASHBOARD_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50 pointer-events-none" />
+            </div>
             <Button
               onClick={() => refetch()}
               disabled={isRefetching}
@@ -121,7 +173,13 @@ export default function ClientPage() {
           </div>
         )}
 
-        {counts && <TagChart data={counts} title="ATC Conversions by Tag" />}
+        {counts && (
+          <TagChart
+            data={counts}
+            title={`ATC Conversions - ${currentDashboardLabel}`}
+            colors={currentDashboardColors}
+          />
+        )}
       </div>
     </div>
   );

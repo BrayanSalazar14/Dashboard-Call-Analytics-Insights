@@ -17,13 +17,15 @@ import { formatLabel } from "@/lib/utils";
 interface TagChartProps {
   data: Record<string, number>;
   title?: string;
+  colors?: string[];
 }
 
-const COLORS = ["#3b82f6", "#60a5fa", "#93c5fd", "#bfdbfe", "#dbeafe"];
+const DEFAULT_COLORS = ["#3b82f6", "#60a5fa", "#93c5fd", "#bfdbfe", "#dbeafe"];
 
 export function TagChart({
   data,
   title = "ATC Tags Distribution",
+  colors = DEFAULT_COLORS,
 }: TagChartProps) {
   const chartData = Object.entries(data)
     .map(([key, value]) => ({
@@ -91,7 +93,7 @@ export function TagChart({
                 {chartData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
+                    fill={colors[index % colors.length]}
                   />
                 ))}
               </Bar>

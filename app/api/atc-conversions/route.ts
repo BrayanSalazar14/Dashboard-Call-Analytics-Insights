@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const GHL_BASE_URL = "https://services.leadconnectorhq.com";
 
@@ -16,77 +16,202 @@ type SearchResponse = {
   searchAfter?: string;
 };
 
-const TAGS = [
-  "atc day 1",
-  "atc day 2",
-  "atc day 3",
-  "atc day 7",
-  "atc day 17",
-  "atc day 35",
-  "atc day 48",
-  "atc day 69",
-  "atc day 90",
-  "atc day 125",
-  "atc day 167",
-  "atc day 241",
-  "atc day 331",
-];
-
-function buildFilters() {
-  // Exact requested nested structure:
-  // "filters":[{"group":"OR","filters":[
-  //   {"group":"AND","filters":[
-  //     {"field":"tags","operator":"contains","value":[...TAGS_LDR...]},
-  //     {"field":"custom_fields.lSLvJkqnLA3fUBEFAfCz","operator":"match","value":"LDR Enrolled"}
-  //   ]},
-  //   {"group":"AND","filters":[
-  //     {"field":"tags","operator":"contains","value":[...TAGS_PROLAW...]},
-  //     {"field":"custom_fields.lSLvJkqnLA3fUBEFAfCz","operator":"match","value":"ProLaw Enrolled"}
-  //   ]}
-  // ]}]
-  const TAGS_LDR = TAGS;
-  const TAGS_PROLAW = TAGS;
-  return [
-    {
-      group: "OR",
-      filters: [
+// Dashboard configurations
+const DASHBOARD_CONFIGS = {
+  "lending-tower": {
+    tags: [
+      "atc day 1",
+      "atc day 2",
+      "atc day 3",
+      "atc day 7",
+      "atc day 17",
+      "atc day 35",
+      "atc day 48",
+      "atc day 69",
+      "atc day 90",
+      "atc day 125",
+      "atc day 167",
+      "atc day 241",
+      "atc day 331",
+    ],
+    buildFilters: function () {
+      return [
         {
-          group: "AND",
+          group: "OR",
           filters: [
             {
-              field: "tags",
-              operator: "eq",
-              value: TAGS_LDR,
+              group: "AND",
+              filters: [
+                {
+                  field: "tags",
+                  operator: "eq",
+                  value: this.tags,
+                },
+                {
+                  field: "customFields.lSLvJkqnLA3fUBEFAfCz",
+                  operator: "eq",
+                  value: "LDR Enrolled",
+                },
+              ],
             },
             {
-              field: "customFields.lSLvJkqnLA3fUBEFAfCz",
-              operator: "eq",
-              value: "LDR Enrolled",
+              group: "AND",
+              filters: [
+                {
+                  field: "tags",
+                  operator: "eq",
+                  value: this.tags,
+                },
+                {
+                  field: "customFields.lSLvJkqnLA3fUBEFAfCz",
+                  operator: "eq",
+                  value: "ProLaw Enrolled",
+                },
+              ],
             },
           ],
         },
-        {
-          group: "AND",
-          filters: [
-            {
-              field: "tags",
-              operator: "eq",
-              value: TAGS_PROLAW,
-            },
-            {
-              field: "customFields.lSLvJkqnLA3fUBEFAfCz",
-              operator: "eq",
-              value: "ProLaw Enrolled",
-            },
-          ],
-        },
-      ],
+      ];
     },
-  ];
-}
+  },
+  "reactivation-pitched-ds": {
+    tags: [
+      "pitched ds atc day 1",
+      "pitched ds atc day 3",
+      "pitched ds atc day 5",
+      "pitched ds atc day 7",
+      "pitched ds atc day 10",
+      "pitched ds atc day 14",
+      "pitched ds atc day 18",
+      "pitched ds atc day 22",
+      "pitched ds atc day 28",
+      "pitched ds atc day 37",
+      "pitched ds atc day 42",
+      "pitched ds atc day 49",
+      "pitched ds atc day 56",
+      "pitched ds atc day 63",
+    ],
+    buildFilters: function () {
+      const rejectionValues = [
+        "Rejected (Pitched DS",
+        "Rejected (Attempting to Contact DS)",
+        "Rejected (Approval Call Set DS)",
+        "Rejected (Partial DS)",
+        "AP (FU) 15+ Days",
+      ];
 
-export async function POST() {
+      return [
+        {
+          group: "OR",
+          filters: rejectionValues.map((rejectionValue) => ({
+            group: "AND",
+            filters: [
+              {
+                field: "tags",
+                operator: "contains",
+                value: this.tags,
+              },
+              {
+                field: "customFields.6fEKNMYWRgQiaZFPfQwT",
+                operator: "eq",
+                value: "Pitched DS Reactivation Lead",
+              },
+              {
+                field: "customFields.lSLvJkqnLA3fUBEFAfCz",
+                operator: "eq",
+                value: rejectionValue,
+              },
+            ],
+          })),
+        },
+      ];
+    },
+  },
+  "reactivation-leads": {
+    tags: [
+      "atc day 1",
+      "atc day 2",
+      "atc day 3",
+      "atc day 7",
+      "atc day 17",
+      "atc day 35",
+      "atc day 48",
+      "atc day 69",
+      "atc day 90",
+      "atc day 125",
+      "atc day 167",
+      "atc day 241",
+      "atc day 331",
+    ],
+    buildFilters: function () {
+      return [
+        {
+          group: "OR",
+          filters: [
+            {
+              group: "AND",
+              filters: [
+                {
+                  field: "tags",
+                  operator: "contains",
+                  value: this.tags,
+                },
+                {
+                  field: "customFields.6fEKNMYWRgQiaZFPfQwT",
+                  operator: "eq",
+                  value: "Reactivation Lead",
+                },
+                {
+                  field: "customFields.lSLvJkqnLA3fUBEFAfCz",
+                  operator: "eq",
+                  value: "LDR Enrolled",
+                },
+              ],
+            },
+            {
+              group: "AND",
+              filters: [
+                {
+                  field: "tags",
+                  operator: "contains",
+                  value: this.tags,
+                },
+                {
+                  field: "customFields.lSLvJkqnLA3fUBEFAfCz",
+                  operator: "eq",
+                  value: "ProLaw Enrolled",
+                },
+                {
+                  field: "customFields.6fEKNMYWRgQiaZFPfQwT",
+                  operator: "eq",
+                  value: "Reactivation Lead",
+                },
+              ],
+            },
+          ],
+        },
+      ];
+    },
+  },
+} as const;
+
+export type DashboardType = keyof typeof DASHBOARD_CONFIGS;
+
+export async function POST(request: NextRequest) {
   const locationId = process.env.NEXT_PUBLIC_LOCATION_ID_GHL;
+
+  // Get dashboard type from request body
+  let dashboardType: DashboardType = "lending-tower";
+  try {
+    const reqBody = await request.json();
+    if (reqBody.dashboardType && reqBody.dashboardType in DASHBOARD_CONFIGS) {
+      dashboardType = reqBody.dashboardType as DashboardType;
+    }
+  } catch {
+    // If no body or invalid JSON, use default
+  }
+
+  const config = DASHBOARD_CONFIGS[dashboardType];
 
   const headers: Record<string, string> = {
     Authorization: process.env.NEXT_PUBLIC_API_KEY_GHL || "",
@@ -108,7 +233,7 @@ export async function POST() {
     const body: any = {
       locationId,
       pageLimit,
-      filters: buildFilters(),
+      filters: config.buildFilters(),
     };
     if (usingCursor && searchAfter) {
       body.searchAfter = searchAfter;
@@ -175,8 +300,8 @@ export async function POST() {
 
   }
 
-  // Aggregate counts by tag (only those in TAGS list) on unique contacts
-  const counts: Record<string, number> = Object.fromEntries(TAGS.map((t) => [t, 0]));
+  // Aggregate counts by tag (only those in config.tags list) on unique contacts
+  const counts: Record<string, number> = Object.fromEntries(config.tags.map((t) => [t, 0]));
   for (const contact of contactById.values()) {
     const tagList = Array.isArray(contact.tags) ? contact.tags : [];
     for (const tag of tagList) {
@@ -190,7 +315,8 @@ export async function POST() {
     totalReported: total || contactById.size,
     totalFetched: contactById.size,
     counts,
-    tags: TAGS,
+    tags: config.tags,
+    dashboardType,
   });
 }
 
