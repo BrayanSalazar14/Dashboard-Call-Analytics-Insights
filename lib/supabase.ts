@@ -40,7 +40,7 @@ export async function getAllCalls(): Promise<RetellCall[]> {
 
   while (hasMore) {
     const to = from + pageSize - 1
-    
+
     const { data, error, count } = await supabase
       .from(supabaseTable)
       .select('*', { count: 'exact' })
@@ -58,7 +58,7 @@ export async function getAllCalls(): Promise<RetellCall[]> {
 
     if (data && data.length > 0) {
       allCalls = allCalls.concat(data)
-      
+
       if (data.length < pageSize) {
         hasMore = false
         console.log('   ℹ️ Last page reached')
@@ -73,6 +73,20 @@ export async function getAllCalls(): Promise<RetellCall[]> {
 
   console.log(`✅ Finished fetching. Total calls retrieved: ${allCalls.length}`)
   return allCalls
+}
+
+export async function getMetricsFromDB(): Promise<CallMetrics> {
+  console.log('📊 Fetching metrics directly from database...')
+
+  const { data, error } = await supabase.rpc('get_call_metrics')
+
+  if (error) {
+    console.error('❌ Error fetching metrics:', error)
+    throw new Error(`Supabase error: ${error.message}`)
+  }
+
+  console.log('✅ Metrics fetched successfully')
+  return data as CallMetrics
 }
 
 export function processCallData(calls: RetellCall[]): CallMetrics {
@@ -91,10 +105,10 @@ export function processCallData(calls: RetellCall[]): CallMetrics {
       metrics.outbound++
     }
 
-    const status = call.call_status || 'sin_status'
+    const status = call.call_status || 'no_status'
     metrics.by_status[status] = (metrics.by_status[status] || 0) + 1
 
-    const reason = call.disconnection_reason || 'sin_razon'
+    const reason = call.disconnection_reason || 'no_reason'
     metrics.by_disconnection_reason[reason] = (metrics.by_disconnection_reason[reason] || 0) + 1
   })
 

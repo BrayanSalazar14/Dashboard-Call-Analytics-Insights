@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
-import { getAllCalls, processCallData } from '@/lib/supabase'
+import { getMetricsFromDB } from '@/lib/supabase'
 import { isCacheValid, getCachedData, updateCache } from '@/lib/cache'
 
 export async function GET() {
@@ -17,34 +17,11 @@ export async function GET() {
       })
     }
 
-    // Fetch fresh data from Supabase
-    console.log('🔄 Fetching fresh data from Supabase...')
-    const calls = await getAllCalls()
+    // Fetch metrics directly from Supabase (aggregated in DB)
+    console.log('🔄 Fetching metrics from Supabase...')
+    const metrics = await getMetricsFromDB()
 
-    console.log(`✅ Fetched ${calls.length} calls`)
-
-    if (calls.length === 0) {
-      const emptyMetrics = {
-        total_calls: 0,
-        inbound: 0,
-        outbound: 0,
-        by_status: {},
-        by_disconnection_reason: {},
-      }
-
-      updateCache(emptyMetrics)
-      const { lastFetch } = getCachedData()
-
-      return NextResponse.json({
-        data: emptyMetrics,
-        cached: false,
-        lastUpdate: new Date(lastFetch!).toISOString(),
-        warning: 'No calls found in database',
-      })
-    }
-
-    // Process call data
-    const metrics = processCallData(calls)
+    console.log(`✅ Fetched metrics: ${metrics.total_calls} total calls`)
 
     // Update cache
     updateCache(metrics)
